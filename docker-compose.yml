@@ -1,0 +1,53 @@
+services:
+  strapi:
+    container_name: strapi
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+      args:
+        NODE_ENV: production
+    image: daffa-strapi:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 1337
+      NODE_ENV: production
+
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      JWT_SECRET: ${JWT_SECRET}
+
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: strapi-db
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_SSL: ${DATABASE_SSL}
+
+      PUBLIC_URL: ${PUBLIC_URL}
+    volumes:
+      - ./uploads:/opt/app/public/uploads
+    ports:
+      - "127.0.0.1:1337:1337"
+    depends_on:
+      - strapi-db
+
+  strapi-db:
+    image: postgres:16-alpine
+    container_name: strapi-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - strapi-db-data:/var/lib/postgresql/data
+
+volumes:
+  strapi-db-data:

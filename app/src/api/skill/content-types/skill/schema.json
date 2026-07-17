@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "skills",
+  "info": {
+    "singularName": "skill",
+    "pluralName": "skills",
+    "displayName": "Skill"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "human_language",
+        "programming_language",
+        "tool_software",
+        "framework_library",
+        "database",
+        "cloud",
+        "data_analysis",
+        "design",
+        "cms",
+        "other"
+      ]
+    },
+    "level": {
+      "type": "enumeration",
+      "enum": [
+        "to be learned",
+        "beginner",
+        "intermediate",
+        "advanced",
+        "native",
+        "professional"
+      ]
+    },
+    "description": {
+      "type": "text"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "order": {
+      "type": "integer"
+    }
+  }
+}

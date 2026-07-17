@@ -1,0 +1,52 @@
+{
+  "collectionName": "components_shared_notebook_resources",
+  "info": {
+    "displayName": "notebook-resource",
+    "icon": "book"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "enumeration",
+      "enum": [
+        "jupyter_notebook",
+        "r_notebook",
+        "html_export",
+        "interactive_chart",
+        "static_chart",
+        "dashboard",
+        "dataset",
+        "github",
+        "live_demo",
+        "map",
+        "other"
+      ]
+    },
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "url": {
+      "type": "string"
+    },
+    "embedUrl": {
+      "type": "text"
+    },
+    "description": {
+      "type": "text"
+    },
+    "order": {
+      "type": "integer"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_shared_price_options",
+  "info": {
+    "displayName": "price-option",
+    "icon": "store"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "currency": {
+      "type": "enumeration",
+      "enum": [
+        "IDR",
+        "USD",
+        "EUR"
+      ]
+    },
+    "description": {
+      "type": "text"
+    }
+  },
+  "config": {}
+}

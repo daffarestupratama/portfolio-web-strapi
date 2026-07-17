@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "short_links",
+  "info": {
+    "singularName": "short-link",
+    "pluralName": "short-links",
+    "displayName": "Short Link"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80,
+      "required": true,
+      "unique": true,
+      "regex": "^[a-z0-9][a-z0-9-]{1,79}$"
+    },
+    "destinationUrl": {
+      "type": "text",
+      "maxLength": 2048,
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "expiresAt": {
+      "type": "datetime"
+    },
+    "clickCount": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "lastClickedAt": {
+      "type": "datetime"
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": [
+        "personal",
+        "academic",
+        "career",
+        "portfolio",
+        "tour",
+        "social",
+        "temporary",
+        "other"
+      ]
+    },
+    "tags": {
+      "type": "json"
+    },
+    "internalNote": {
+      "type": "text"
+    }
+  }
+}

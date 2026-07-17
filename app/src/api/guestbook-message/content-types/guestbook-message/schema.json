@@ -1,0 +1,75 @@
+{
+  "kind": "collectionType",
+  "collectionName": "guestbook_messages",
+  "info": {
+    "singularName": "guestbook-message",
+    "pluralName": "guestbook-messages",
+    "displayName": "Guestbook Message"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "message": {
+      "type": "text",
+      "minLength": 3,
+      "maxLength": 1000,
+      "required": true
+    },
+    "displayName": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "isAnonymous": {
+      "type": "boolean",
+      "required": false,
+      "default": true
+    },
+    "isVisible": {
+      "type": "boolean",
+      "required": false,
+      "default": true
+    },
+    "isPinned": {
+      "type": "boolean",
+      "required": false,
+      "default": false
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "feedback",
+        "question",
+        "career",
+        "personal",
+        "tour",
+        "website",
+        "critics",
+        "other"
+      ]
+    },
+    "submittedAt": {
+      "type": "datetime"
+    },
+    "reply": {
+      "type": "text"
+    },
+    "repliedAt": {
+      "type": "datetime"
+    },
+    "moderationStatus": {
+      "type": "enumeration",
+      "default": "visible",
+      "enum": [
+        "visible",
+        "hidden",
+        "spam",
+        "reviewed"
+      ]
+    },
+    "moderationNote": {
+      "type": "text"
+    }
+  }
+}

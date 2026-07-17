@@ -1,0 +1,44 @@
+{
+  "collectionName": "components_shared_contact_links",
+  "info": {
+    "displayName": "contact-link",
+    "icon": "phone"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "linkType": {
+      "type": "enumeration",
+      "enum": [
+        "email",
+        "whatsapp",
+        "instagram",
+        "linkedin",
+        "github",
+        "kaggle",
+        "tableau",
+        "x",
+        "website",
+        "booking",
+        "tiktok",
+        "other"
+      ]
+    },
+    "icon": {
+      "type": "string"
+    },
+    "isPrimary": {
+      "type": "boolean",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "integer"
+    }
+  },
+  "config": {}
+}

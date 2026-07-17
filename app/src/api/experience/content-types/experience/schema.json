@@ -1,0 +1,68 @@
+{
+  "kind": "collectionType",
+  "collectionName": "experiences",
+  "info": {
+    "singularName": "experience",
+    "pluralName": "experiences",
+    "displayName": "Experience"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "organization": {
+      "type": "string"
+    },
+    "logo": {
+        "type": "media",
+        "multiple": false,
+        "allowedTypes": ["images"]
+    },
+    "location": {
+      "type": "string"
+    },
+    "experienceType": {
+      "type": "enumeration",
+      "enum": [
+        "education",
+        "work",
+        "freelance",
+        "volunteer",
+        "organization",
+        "project",
+        "certification",
+        "other"
+      ]
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "isCurrent": {
+      "type": "boolean",
+      "default": false
+    },
+    "description": {
+      "type": "text"
+    },
+    "gallery": {
+      "type": "component",
+      "component": "shared.gallery-image",
+      "repeatable": true
+    },
+    "sortOrder": {
+      "type": "integer"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

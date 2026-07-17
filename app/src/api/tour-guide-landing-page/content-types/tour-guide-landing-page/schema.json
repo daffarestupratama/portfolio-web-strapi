@@ -1,0 +1,57 @@
+{
+  "kind": "singleType",
+  "collectionName": "tour_guide_landing_pages",
+  "info": {
+    "singularName": "tour-guide-landing-page",
+    "pluralName": "tour-guide-landing-pages",
+    "displayName": "Tour Guide Landing Page"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "text"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "intro": {
+      "type": "blocks"
+    },
+    "featuredTours": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tour-package.tour-package"
+    },
+    "whyChooseMe": {
+      "type": "json"
+    },
+    "contactLinks": {
+      "type": "component",
+      "component": "shared.contact-link",
+      "repeatable": true
+    },
+    "primaryCta": {
+      "type": "component",
+      "component": "shared.cta",
+      "repeatable": false
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    }
+  }
+}

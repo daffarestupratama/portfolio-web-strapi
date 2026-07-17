@@ -1,0 +1,93 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tour_packages",
+  "info": {
+    "singularName": "tour-package",
+    "pluralName": "tour-packages",
+    "displayName": "Tour Package"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "shortDescription": {
+      "type": "text"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "gallery": {
+      "type": "component",
+      "component": "shared.gallery-image",
+      "repeatable": true
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "route": {
+      "type": "component",
+      "component": "shared.route-stop",
+      "repeatable": true
+    },
+    "duration": {
+      "type": "string"
+    },
+    "meetingPoint": {
+      "type": "string"
+    },
+    "suitableFor": {
+      "type": "json"
+    },
+    "notSuitableFor": {
+      "type": "json"
+    },
+    "whatToPrepare": {
+      "type": "json"
+    },
+    "included": {
+      "type": "json"
+    },
+    "excluded": {
+      "type": "json"
+    },
+    "priceOption": {
+      "type": "component",
+      "component": "shared.price-option",
+      "repeatable": true
+    },
+    "bookingContact": {
+      "type": "component",
+      "component": "shared.contact-link",
+      "repeatable": true
+    },
+    "availabilityNote": {
+      "type": "text"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    }
+  }
+}

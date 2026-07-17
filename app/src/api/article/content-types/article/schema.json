@@ -1,0 +1,80 @@
+{
+  "kind": "collectionType",
+  "collectionName": "articles",
+  "info": {
+    "singularName": "article",
+    "pluralName": "articles",
+    "displayName": "Article"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "excerpt": {
+      "type": "text"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "body": {
+      "type": "blocks"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "personal",
+        "data",
+        "technology",
+        "travel",
+        "tutorial",
+        "essay",
+        "campus",
+        "other"
+      ]
+    },
+    "language": {
+        "type": "enumeration",
+        "enum": ["en", "id", "de"],
+        "default": "en"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "required": false,
+      "default": false
+    },
+    "publishedDate": {
+      "type": "date"
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    },
+    "relatedProjects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project",
+      "mappedBy": "relatedArticles"
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "kind": "collectionType",
+  "collectionName": "projects",
+  "info": {
+    "singularName": "project",
+    "pluralName": "projects",
+    "displayName": "Project"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "summary": {
+      "type": "text"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "gallery": {
+      "type": "component",
+      "component": "shared.gallery-image",
+      "repeatable": true
+    },
+    "problem": {
+      "type": "text"
+    },
+    "approach": {
+      "type": "blocks"
+    },
+    "result": {
+      "type": "blocks"
+    },
+    "techStack": {
+      "type": "json"
+    },
+    "projectType": {
+      "type": "enumeration",
+      "enum": [
+        "data_science",
+        "data_visualization",
+        "dashboard",
+        "machine_learning",
+        "gis",
+        "web",
+        "research",
+        "case_study",
+        "social_work",
+        "finance",
+        "other"
+      ]
+    },
+    "projectStatus": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "in_progress",
+        "published",
+        "archived"
+      ]
+    },
+    "year": {
+      "type": "integer"
+    },
+    "githubUrl": {
+      "type": "string"
+    },
+    "liveDemoUrl": {
+      "type": "string"
+    },
+    "dashboardUrl": {
+      "type": "string"
+    },
+    "notebookResources": {
+      "type": "component",
+      "component": "shared.notebook-resource",
+      "repeatable": true
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    },
+    "relatedArticles": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::article.article",
+      "inversedBy": "relatedProjects"
+    }
+  }
+}

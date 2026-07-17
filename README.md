@@ -1,14 +1,14 @@
 # portfolio-web-strapi
 
-Backend CMS (Strapi v5 + PostgreSQL) untuk daffa.me — dijalankan via Docker Compose.
+Backend CMS (Strapi v5 + PostgreSQL) untuk daffa.me, dijalankan via Docker Compose.
 Frontend: portfolio-web-fe (Next.js, Cloudflare Workers).
 
 ## Struktur
 
-- `app/` — source Strapi (schema content-type di `app/src/api/*/content-types/*/schema.json`,
+- `app/` : Source Strapi (schema content-type di `app/src/api/*/content-types/*/schema.json`,
   komponen di `app/src/components/`, config di `app/config/`)
-- `docker-compose.yml` — dua service: `strapi` (build dari ./app) + `strapi-db` (postgres:16-alpine)
-- `.env.example` — template environment; salin ke `.env` dan isi (JANGAN commit `.env`)
+- `docker-compose.yml` : Untuk dua service, `strapi` (build dari ./app) + `strapi-db` (postgres:16-alpine)
+- `.env.example` : Template environment. Salin ke `.env` dan isi (JANGAN commit `.env`)
 
 ## Alur kerja mengubah schema
 
@@ -19,5 +19,5 @@ Frontend: portfolio-web-fe (Next.js, Cloudflare Workers).
 
 ## Deploy ke VM baru
 
-Lihat bagian "Deploy" di bawah — butuh: `.env` (dari backup aman),
+Lihat bagian "Deploy" di bawah, butuh: `.env` (dari backup aman),
 dump DB (`*.sql`), dan arsip `uploads`.

@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "service_addons",
+  "info": {
+    "singularName": "service-addon",
+    "pluralName": "service-addons",
+    "displayName": "Service Addon"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": { "type": "string", "required": true },
+    "category": {
+      "type": "enumeration",
+      "enum": ["pages_content", "data_features", "marketing", "transaction", "system", "infrastructure"],
+      "default": "system"
+    },
+    "priceText": { "type": "string" },
+    "unit": { "type": "string" },
+    "description": { "type": "text" },
+    "isPopular": { "type": "boolean", "default": false },
+    "order": { "type": "integer" }
+  }
+}

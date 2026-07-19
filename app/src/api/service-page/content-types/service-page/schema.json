@@ -1,0 +1,45 @@
+{
+  "kind": "singleType",
+  "collectionName": "service_pages",
+  "info": {
+    "singularName": "service-page",
+    "pluralName": "service-pages",
+    "displayName": "Service Page"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": { "type": "string" },
+    "subtitle": { "type": "text" },
+    "intro": { "type": "blocks" },
+    "features": {
+      "type": "component",
+      "component": "service.feature",
+      "repeatable": true
+    },
+    "process": {
+      "type": "component",
+      "component": "service.step",
+      "repeatable": true
+    },
+    "faqs": {
+      "type": "component",
+      "component": "service.faq",
+      "repeatable": true
+    },
+    "ctaHeading": { "type": "string" },
+    "ctaText": { "type": "text" },
+    "featuredProjects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::project.project"
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    }
+  }
+}

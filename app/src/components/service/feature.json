@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_service_features",
+  "info": {
+    "displayName": "feature",
+    "icon": "star"
+  },
+  "options": {},
+  "attributes": {
+    "title": { "type": "string" },
+    "description": { "type": "text" },
+    "icon": { "type": "string" }
+  }
+}

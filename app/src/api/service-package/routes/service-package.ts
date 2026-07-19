@@ -4,4 +4,4 @@
 
 import { factories } from '@strapi/strapi';
 
-export default factories.createCoreRouter('api::service-package.service-package');
+export default factories.createCoreRouter('api::service-package.service-package' as any);

@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "terminal_commands",
+  "info": {
+    "singularName": "terminal-command",
+    "pluralName": "terminal-commands",
+    "displayName": "Terminal Command"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "regex": "^[a-z][a-z0-9_-]{0,31}$"
+    },
+    "aliases": {
+      "type": "json"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "manText": {
+      "type": "text"
+    },
+    "output": {
+      "type": "text"
+    },
+    "outputType": {
+      "type": "enumeration",
+      "enum": ["text", "ascii", "link"],
+      "default": "text"
+    },
+    "linkUrl": {
+      "type": "string"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["custom", "about", "fun", "links", "misc"],
+      "default": "custom"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "order": {
+      "type": "integer"
+    }
+  }
+}

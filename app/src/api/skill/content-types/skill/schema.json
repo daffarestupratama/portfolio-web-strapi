@@ -30,6 +30,17 @@
         "other"
       ]
     },
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "projects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project",
+      "mappedBy": "technologies"
+    },
     "level": {
       "type": "enumeration",
       "enum": [

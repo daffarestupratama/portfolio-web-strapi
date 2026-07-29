@@ -47,6 +47,12 @@
     "result": {
       "type": "blocks"
     },
+    "technologies": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::skill.skill",
+      "inversedBy": "projects"
+    },
     "techStack": {
       "type": "json"
     },

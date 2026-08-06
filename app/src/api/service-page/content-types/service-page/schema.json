@@ -14,6 +14,21 @@
     "title": { "type": "string" },
     "subtitle": { "type": "text" },
     "intro": { "type": "blocks" },
+    "heroImageDesktop": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "heroImageLaptop": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "heroImageMobile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
     "features": {
       "type": "component",
       "component": "service.feature",

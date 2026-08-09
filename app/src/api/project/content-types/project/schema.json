@@ -98,10 +98,6 @@
       "component": "shared.notebook-resource",
       "repeatable": true
     },
-    "isFeatured": {
-      "type": "boolean",
-      "default": false
-    },
     "seo": {
       "type": "component",
       "component": "shared.seo",

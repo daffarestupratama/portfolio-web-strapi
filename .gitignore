@@ -1,10 +1,10 @@
-# Secrets — JANGAN PERNAH di-commit
+# Secrets
 .env
 .env.*
 !.env.example
 .seed.env
 
-# Media (binary, tidak cocok di Git)
+# Media (binary)
 uploads/
 
 # Build artifacts & dependencies

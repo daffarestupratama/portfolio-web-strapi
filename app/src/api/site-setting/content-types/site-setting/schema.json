@@ -19,6 +19,16 @@
       "component": "shared.seo",
       "repeatable": false
     },
+    "authorAvatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "contactCta": {
+      "type": "component",
+      "component": "shared.contact-cta",
+      "repeatable": false
+    },
     "contactLinks": {
       "type": "component",
       "component": "shared.contact-link",

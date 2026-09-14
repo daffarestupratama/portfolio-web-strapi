@@ -1,46 +1,64 @@
 # Panduan Migrasi VM
 
-Runbook untuk memindahkan backend Strapi ke VM baru. Simpan file ini di root repo `portfolio-web-strapi`.
+Runbook untuk migrasi backend Strapi ke VM baru.
 
 ## Arsitektur saat ini
 
 | Komponen | Lokasi | Ikut migrasi? |
 |---|---|---|
 | Source code, schema, config | Repo GitHub ini | Otomatis lewat `git clone` |
-| Media (gambar, file) | Cloudflare R2, bucket `portfolio-web-media` | **Tidak.** Sudah lepas dari VM |
+| Media (gambar, file) | Cloudflare R2, bucket `portfolio-web-media` | **Tidak.** Sudah terlepas dari VM |
 | Database | PostgreSQL 16 dalam container Docker di VM | **Ya.** Perlu dump dan restore |
 | Secret (`.env`) | Password manager | **Ya.** Salin manual |
-| Reverse proxy + TLS | nginx + Certbot di VM | Dipasang ulang |
-| DNS | Cloudflare (zona `daffa.me`) | Ubah A record |
+| Reverse proxy + TLS | nginx + Certbot di VM | Dipasang atau ditambahkan |
+| DNS | Cloudflare (zona `daffa.me`) | Ubah A record `cms` dan `s` |
 
-Yang benar-benar perlu dipindahkan hanya **dump database** dan **file `.env`**. Selebihnya dibangun ulang dari repo.
+Yang benar-benar dipindahkan hanya **dump database** dan **isi `.env`**.
 
-## Yang harus disiapkan sebelum mulai
+**VM saat ini dipakai bersama Odoo** (Azure, Central India, 4GB RAM).
 
-- IP publik VM baru
-- Isi `.env` lama, lengkap (`APP_KEYS`, `JWT_SECRET`, `ENCRYPTION_KEY`, `DATABASE_PASSWORD`, kredensial R2). **Nilainya harus sama persis**, kalau berubah sesi admin invalid dan database tak bisa dibuka
-- Akses ke dashboard Cloudflare untuk mengubah DNS
-- VM lama masih hidup. Jangan matikan sampai VM baru terverifikasi
+## Sebelum mulai
+
+- IP publik VM baru. Di Azure, pastikan Public IP bertipe **Static**, bukan Dynamic, karena Dynamic berubah setiap VM dimatikan dan akan merusak DNS.
+- Isi `.env` secara lengkap dan persis seperti sebelumnya. Kalau `APP_KEYS`, `JWT_SECRET`, `ENCRYPTION_KEY`, atau `DATABASE_PASSWORD` berubah, sesi admin invalid dan database tak terbuka.
+- Akses dashboard Cloudflare.
+- VM lama pastikan masih hidup. Jangan matikan sampai VM baru terverifikasi.
+
+### Mencegah SSH putus saat build
+
+Build memakan waktu lama dan sebagian langkahnya diam tanpa output, sehingga load balancer cloud bisa memutus ssh connection yang terlihat menganggur. Di laptop, buat `~/.ssh/config` (atau `C:\Users\<user>\.ssh\config`):
+
+```
+Host *
+    ServerAliveInterval 60
+    ServerAliveCountMax 10
+```
+
+Untuk proses panjang, jalankan di dalam `tmux` supaya tetap berjalan meski koneksi putus:
+
+```bash
+sudo apt install -y tmux
+tmux new -s build
+# ... jalankan perintahnya ...
+# putus? masuk lagi lalu: tmux attach -t build
+```
 
 ---
 
-## Fase 1: Siapkan VM baru
+## Fase 1: Siapkan VM
 
-Di konsol penyedia: reset password user `ubuntu`, lalu buka port **22, 80, 443** di firewall. Jangan buka 1337 dan 5432.
+**VM baru (khusus Strapi):**
+
+Buka port **22, 80, 443** di firewall penyedia. Di Azure lewat **Network Security Group**. Jangan buka 1337 dan 5432.
 
 ```bash
 ssh ubuntu@<IP_BARU>
-```
-
-Izin Docker dan update sistem:
-
-```bash
 sudo usermod -aG docker $USER
 sudo apt update && sudo apt upgrade -y
 sudo reboot
 ```
 
-Masuk lagi setelah ~30 detik, lalu buat swap (RAM 2GB terlalu ketat untuk build Strapi):
+Masuk lagi, buat swap:
 
 ```bash
 sudo fallocate -l 2G /swapfile
@@ -54,6 +72,23 @@ docker ps
 
 `docker ps` harus jalan tanpa `sudo`.
 
+**VM yang sudah dipakai aplikasi lain:** lewati langkah di atas, periksa kondisinya:
+
+```bash
+free -h
+swapon --show
+df -h /
+docker ps
+sudo ss -tlnp | grep -E ':(1337|5432|80|443)'
+docker volume ls
+```
+
+Yang dicari:
+
+- Swap kosong, buat seperti di atas.
+- Port 5432 sudah **terikat ke host** (ada tanda `->` di `docker ps`), ubah pemetaan Strapi jadi `127.0.0.1:5433:5432` di `docker-compose.yml`. Hanya sisi host yang berubah; Strapi tetap menghubungi `strapi-db:5432` lewat jaringan internal, jadi `.env` tidak disentuh. Port yang hanya tertulis `5432/tcp` tanpa panah tidak bentrok.
+- Container atau volume bernama `strapi`, `strapi-db`, `strapi-db-data`, berarti bentrok dan perlu ditangani.
+
 ---
 
 ## Fase 2: Dump database dari VM lama
@@ -65,18 +100,18 @@ docker exec strapi-db sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' > ~/db-
 ls -lh ~/db-*.sql
 ```
 
-Pastikan ukurannya tidak nol. Unduh ke laptop, lalu kirim ke VM baru (dari terminal laptop, satu per satu, pakai path absolut):
+Pastikan ukurannya tidak nol. Unduh ke laptop, lalu **kirim ke VM baru**. Dua langkah, jangan lewatkan yang kedua:
 
 ```
 scp ubuntu@<IP_LAMA>:/home/ubuntu/db-YYYY-MM-DD.sql .
 scp db-YYYY-MM-DD.sql ubuntu@<IP_BARU>:/home/ubuntu/
 ```
 
-Simpan salinannya di laptop sebagai cadangan independen.
+Kalau VM memakai SSH key, tambahkan `-i <path-ke-key>`. Simpan salinannya di laptop sebagai cadangan.
 
 ---
 
-## Fase 3: Pasang Strapi di VM baru
+## Fase 3: Pasang Strapi
 
 ```bash
 sudo mkdir -p /opt && cd /opt
@@ -85,13 +120,13 @@ sudo chown -R $USER:$USER portfolio-web-strapi
 cd portfolio-web-strapi
 ```
 
-Buat `.env` dengan heredoc (bukan nano, karena paste teks panjang ke editor sering merusak format):
+Buat `.env` dengan heredoc, **bukan nano**, karena paste teks panjang ke editor sering merusak format:
 
 ```bash
 cat > /opt/portfolio-web-strapi/.env << 'ENVEOF'
 ```
 
-Tempel isi `.env` lama, tekan Enter, ketik `ENVEOF`, Enter. Lalu verifikasi:
+Tempel isi `.env` lama, Enter, ketik `ENVEOF`, Enter. Verifikasi:
 
 ```bash
 chmod 600 .env
@@ -99,9 +134,25 @@ wc -c .env
 grep -n '^ ' .env
 ```
 
-Perintah terakhir tidak boleh mengeluarkan apa pun (spasi di awal baris = gejala paste rusak).
+Perintah terakhir tidak boleh mengeluarkan apa pun.
 
-Restore database **sebelum** Strapi dijalankan, supaya Strapi tidak membuat skema kosong duluan:
+### Batas memori (wajib di VM bersama)
+
+Tanpa ini, satu aplikasi yang bocor memori bisa mencekik yang lain. Di `docker-compose.yml`, tambahkan pada service `strapi`:
+
+```yaml
+    mem_limit: 1g
+```
+
+dan pada `strapi-db`:
+
+```yaml
+    mem_limit: 384m
+```
+
+### Restore database sebelum Strapi jalan
+
+Urutannya penting, supaya Strapi tidak membuat skema kosong duluan:
 
 ```bash
 docker compose up -d strapi-db
@@ -110,9 +161,21 @@ cat ~/db-YYYY-MM-DD.sql | docker exec -i strapi-db sh -c 'psql -U "$POSTGRES_USE
 docker exec strapi-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\dt"' | head -20
 ```
 
-Daftar tabel harus muncul. Baru bangun Strapi:
+Daftar tabel harus muncul.
+
+### Build, dan di VM bersama matikan tetangga dulu
+
+Build Strapi menyerap 1 sampai 1,5GB dalam lonjakan singkat. Kalau memori habis, kernel memilih korbannya sendiri, dan yang mati bisa aplikasi lain. Matikan sementara, sekitar sepuluh menit:
 
 ```bash
+cd ~/odoo && docker compose stop
+free -h
+```
+
+Perhatikan kolom **available**, bukan `free`. Linux menahan buff/cache dan melepasnya saat dibutuhkan, jadi `free` yang kecil itu normal.
+
+```bash
+cd /opt/portfolio-web-strapi
 docker compose up -d --build strapi
 docker logs -f strapi
 ```
@@ -121,19 +184,29 @@ Tunggu `Strapi started successfully`, Ctrl+C, lalu:
 
 ```bash
 docker builder prune -af
+cd ~/odoo && docker compose start
+free -h
+docker ps
 curl -sS -o /dev/null -w "%{http_code}\n" http://localhost:1337/api/experiences
 ```
 
-Harus `200`.
+Semua container harus jalan dan curl harus `200`.
 
-> Catatan: folder `uploads` **tidak perlu** dipindahkan. Media sudah di R2 dan URL-nya tersimpan absolut di database.
+> Folder `uploads` **tidak** perlu dipindahkan. Media ada di R2 dan URL-nya tersimpan absolut di database.
 
 ---
 
-## Fase 4: nginx + vhost
+## Fase 4: nginx
+
+**VM baru:** pasang dulu.
 
 ```bash
 sudo apt install -y nginx certbot python3-certbot-nginx
+```
+
+**VM yang sudah punya nginx:** jangan pasang ulang dan jangan sentuh vhost aplikasi lain. Cukup tambahkan dua file baru, dan **jangan hapus `sites-enabled/default`** karena mungkin sudah ditangani saat setup sebelumnya.
+
+```bash
 sudo nano /etc/nginx/sites-available/cms.daffa.me
 ```
 
@@ -184,33 +257,35 @@ server {
 }
 ```
 
-**Jangan ubah** baris `proxy_set_header Host cms.daffa.me;` pada vhost `s.` — itu yang membuat shortener bekerja.
+**Jangan ubah** `proxy_set_header Host cms.daffa.me;` pada vhost `s.` karena itu yang membuat shortener bekerja.
 
 ```bash
 sudo ln -sf /etc/nginx/sites-available/cms.daffa.me /etc/nginx/sites-enabled/
 sudo ln -sf /etc/nginx/sites-available/s.daffa.me /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 ```
+
+Kalau `nginx -t` gagal, **jangan reload**, karena itu bisa menjatuhkan aplikasi lain di VM yang sama.
 
 ---
 
 ## Fase 5: Uji lewat IP sebelum menyentuh DNS
 
-Ini membuktikan semuanya sehat sementara situs lama masih melayani trafik:
+Membuktikan semuanya sehat sementara situs lama masih melayani trafik:
 
 ```bash
 curl -sS -H "Host: cms.daffa.me" -o /dev/null -w "%{http_code}\n" http://127.0.0.1/api/experiences
 curl -sS -H "Host: s.daffa.me" -i http://127.0.0.1/<SLUG> | head -5
+curl -sS -H "Host: odoo.daffa.me" -o /dev/null -w "%{http_code}\n" http://127.0.0.1/
 ```
 
-Harus `200` dan `302`. **Jangan pindahkan DNS kalau salah satu gagal.**
+Harus `200`, `302`, dan respons normal aplikasi lain (Odoo mengembalikan `303`, redirect ke login). Yang ketiga memastikan kamu tidak merusak yang sudah jalan. **Jangan pindahkan DNS kalau ada yang gagal.**
 
 ---
 
 ## Fase 6: DNS dan sertifikat
 
-Di Cloudflare, zona `daffa.me`: ubah A record `cms` dan `s` ke IP baru, **matikan proxy dulu** (awan abu-abu) agar Certbot bisa validasi.
+Di Cloudflare, zona `daffa.me`: ubah A record `cms` dan `s` ke IP baru, **matikan proxy dulu** (awan abu-abu) agar Certbot bisa validasi. Jangan sentuh record aplikasi lain.
 
 Tunggu propagasi (`nslookup cms.daffa.me`), lalu:
 
@@ -219,7 +294,7 @@ sudo certbot --nginx -d cms.daffa.me -d s.daffa.me
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-Nyalakan kembali proxy (awan oranye) untuk kedua record. Pastikan SSL/TLS mode **Full (strict)**.
+Certbot menambahkan sertifikat baru tanpa mengganggu yang sudah ada. Nyalakan kembali proxy untuk `cms` dan `s`, pastikan SSL/TLS mode **Full (strict)**.
 
 ---
 
@@ -228,17 +303,22 @@ Nyalakan kembali proxy (awan oranye) untuk kedua record. Pastikan SSL/TLS mode *
 ```bash
 curl -sS -o /dev/null -w "%{http_code}\n" https://cms.daffa.me/api/experiences
 curl -sS -g -o /dev/null -w "%{http_code}\n" "https://cms.daffa.me/api/skills?populate[logo]=true"
-curl -sS -I https://s.daffa.me/<SLUG> | head -5
+curl -sS -I https://s.daffa.me/<SLUG> | head -3
+curl -sS -o /dev/null -w "%{http_code}\n" https://odoo.daffa.me
+free -h
 ```
 
 Lalu manual:
 
-- Login ke `https://cms.daffa.me/admin` dengan akun lama (bukti `APP_KEYS`/`JWT_SECRET` benar)
-- Media Library: thumbnail tampil (file dilayani R2, bukan VM)
-- Unggah satu gambar uji, pastikan URL-nya `media.daffarestupratama.com` dan objeknya bertambah di dashboard R2
-- Buka `https://daffarestupratama.com`, pastikan data dan gambar normal
-- Kirim satu pesan guestbook (menguji API token, tersimpan di database)
-- Publish satu perubahan di CMS, pastikan webhook revalidasi tetap jalan
+- Login ke `https://cms.daffa.me/admin` dengan akun lama, bukti secret benar
+- Media Library: thumbnail tampil, dilayani R2
+- Unggah satu gambar uji, cek URL-nya `media.daffarestupratama.com` dan objeknya bertambah di R2
+- Buka `https://daffarestupratama.com`, data dan gambar normal
+- Kirim satu pesan guestbook, menguji API token yang tersimpan di database
+- Publish satu perubahan di CMS, pastikan webhook revalidasi jalan
+- Aplikasi lain di VM masih normal
+
+Perhatikan `free -h`: kalau available tersisa sangat tipis dengan semua berjalan, turunkan `mem_limit` atau pertimbangkan memindahkan Postgres ke layanan terkelola.
 
 Frontend tidak perlu diubah: `NEXT_PUBLIC_STRAPI_URL` tetap `https://cms.daffa.me`.
 
@@ -248,16 +328,16 @@ Frontend tidak perlu diubah: `NEXT_PUBLIC_STRAPI_URL` tetap `https://cms.daffa.m
 
 Baru setelah Fase 7 seluruhnya hijau.
 
-- Matikan auto-renew instance
-- Hapus **snapshot** (sering terlewat dan tetap menagih), custom image, dan cloud disk yang tidak terpakai
+- Matikan auto-renew
+- Hapus **snapshot** (sering terlewat dan tetap menagih), custom image, cloud disk menganggur
 - Cek tidak ada instance lain di region berbeda
 - Lepas metode pembayaran kalau akun tidak dipakai lagi
 
-Simpan dump database dan `.env` di laptop meski migrasi sudah sukses.
+Simpan dump database dan `.env` di laptop meski migrasi sukses.
 
 ---
 
-## Alur kerja rutin (bukan migrasi)
+## Alur kerja rutin
 
 Mengubah schema atau konfigurasi Strapi:
 
@@ -266,11 +346,16 @@ Mengubah schema atau konfigurasi Strapi:
 3. Di VM: `cd /opt/portfolio-web-strapi && git pull && docker compose up -d --build strapi && docker builder prune -af`
 4. Verifikasi: `curl -sS -g -o /dev/null -w "%{http_code}\n" "https://cms.daffa.me/api/<plural>?populate=*"`
 
-Selalu jalankan `docker builder prune -af` setelah rebuild, karena cache build pernah membuat disk penuh dan menggagalkan build.
+Di VM bersama, **matikan tetangga dulu** sebelum rebuild, sama seperti Fase 3. Selalu jalankan `docker builder prune -af` setelahnya; cache build pernah membuat disk penuh dan menggagalkan build.
 
 ## Jebakan yang pernah terjadi
 
+- **SSH putus saat build.** Langkah `chown -R node:node /opt/app` berjalan beberapa menit tanpa output, dan koneksi yang terlihat menganggur diputus load balancer. Pakai `ServerAliveInterval` dan `tmux`.
+- **`free` terlihat kecil padahal memori cukup.** Baca kolom **available**, bukan `free`.
+- **Lupa mengirim dump ke VM baru.** Mengunduh ke laptop saja tidak cukup, ada dua langkah `scp`.
 - **Content type baru lewat file** memicu error TypeScript `not assignable to parameter of type 'ContentType'`. Solusinya cast `as any` pada `factories.create*` di controller, route, dan service. Tidak berlaku untuk sekadar menambah field.
-- **Perintah `curl` dengan tanda kurung siku** butuh flag `-g`, kalau tidak curl menganggapnya sebagai rentang dan menolak.
-- **`awscli` tidak ada di repositori Ubuntu 24.04.** Hanya dibutuhkan untuk penyalinan massal sekali jalan, dan sudah tidak diperlukan lagi karena media ada di R2.
-- **Firewall cloud** sering hanya membuka 22 dan 80 secara default. Port 443 harus ditambahkan manual, kalau tidak akan muncul error 522 di Cloudflare.
+- **`curl` dengan tanda kurung siku** butuh flag `-g`, kalau tidak curl menganggapnya rentang dan menolak.
+- **`awscli` tidak ada di repositori Ubuntu 24.04.** Sudah tidak diperlukan karena media ada di R2.
+- **Firewall cloud** sering hanya membuka 22 dan 80 secara bawaan. Port 443 harus ditambahkan manual, kalau tidak muncul error 522 di Cloudflare.
+- **Public IP Dynamic di Azure** berubah setiap VM dimatikan. Set ke Static.
+- **Port 5432 di `docker ps`**: `127.0.0.1:5432->5432/tcp` berarti terikat ke host dan bisa bentrok; `5432/tcp` saja hanya terekspos internal dan aman.

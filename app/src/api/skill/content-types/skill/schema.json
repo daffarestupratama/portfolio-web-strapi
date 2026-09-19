@@ -61,6 +61,12 @@
     },
     "order": {
       "type": "integer"
+    },
+    "certifications": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::certification.certification",
+      "mappedBy": "skills"
     }
   }
 }

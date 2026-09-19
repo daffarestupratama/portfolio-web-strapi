@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "certifications",
+  "info": {
+    "singularName": "certification",
+    "pluralName": "certifications",
+    "displayName": "Certification"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": { "type": "string", "required": true },
+    "slug": { "type": "uid", "targetField": "title" },
+    "issuer": { "type": "string", "required": true },
+    "issuerLogo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "issueDate": { "type": "date" },
+    "expiryDate": { "type": "date" },
+    "credentialId": { "type": "string" },
+    "credentialUrl": { "type": "string" },
+    "certificateImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images", "files"]
+    },
+    "description": { "type": "text" },
+    "kind": {
+      "type": "enumeration",
+      "enum": ["course", "workshop", "event", "bootcamp", "organization"],
+      "default": "course"
+    },
+    "skills": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::skill.skill",
+      "inversedBy": "certifications"
+    },
+    "isFeatured": { "type": "boolean", "default": false },
+    "order": { "type": "integer" }
+  }
+}

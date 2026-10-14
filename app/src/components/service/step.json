@@ -7,7 +7,6 @@
   "options": {},
   "attributes": {
     "title": { "type": "string" },
-    "description": { "type": "text" },
-    "order": { "type": "integer" }
+    "description": { "type": "text" }
   }
 }

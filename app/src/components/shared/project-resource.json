@@ -1,16 +1,18 @@
 {
-  "collectionName": "components_shared_notebook_resources",
+  "collectionName": "components_shared_project_resources",
   "info": {
-    "displayName": "notebook-resource",
+    "displayName": "project-resource",
     "icon": "book"
   },
   "options": {},
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "kind": {
       "type": "enumeration",
+      "required": true,
       "enum": [
         "jupyter_notebook",
         "r_notebook",
@@ -19,8 +21,6 @@
         "static_chart",
         "dashboard",
         "dataset",
-        "github",
-        "live_demo",
         "map",
         "other"
       ]
@@ -43,9 +43,6 @@
     },
     "description": {
       "type": "text"
-    },
-    "order": {
-      "type": "integer"
     }
   },
   "config": {}

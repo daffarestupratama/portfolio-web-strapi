@@ -10,10 +10,12 @@
       "type": "string"
     },
     "url": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "linkType": {
       "type": "enumeration",
+      "required": true,
       "enum": [
         "email",
         "whatsapp",
@@ -28,16 +30,6 @@
         "tiktok",
         "other"
       ]
-    },
-    "icon": {
-      "type": "string"
-    },
-    "isPrimary": {
-      "type": "boolean",
-      "default": false
-    },
-    "sortOrder": {
-      "type": "integer"
     }
   },
   "config": {}

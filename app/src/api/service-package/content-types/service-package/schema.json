@@ -12,7 +12,6 @@
   "pluginOptions": {},
   "attributes": {
     "name": { "type": "string", "required": true },
-    "slug": { "type": "uid", "targetField": "name" },
     "tagline": { "type": "text" },
     "kind": {
       "type": "enumeration",
@@ -41,7 +40,6 @@
     "revisions": { "type": "string" },
     "suitableFor": { "type": "text" },
     "isPopular": { "type": "boolean", "default": false },
-    "isActive": { "type": "boolean", "default": true },
     "order": { "type": "integer" }
   }
 }

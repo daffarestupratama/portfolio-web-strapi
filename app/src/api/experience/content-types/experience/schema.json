@@ -16,7 +16,8 @@
       "required": true
     },
     "organization": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "logo": {
         "type": "media",
@@ -35,12 +36,12 @@
         "volunteer",
         "organization",
         "project",
-        "certification",
         "other"
       ]
     },
     "startDate": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "endDate": {
       "type": "date"
@@ -56,13 +57,6 @@
       "type": "component",
       "component": "shared.gallery-image",
       "repeatable": true
-    },
-    "sortOrder": {
-      "type": "integer"
-    },
-    "isFeatured": {
-      "type": "boolean",
-      "default": false
     }
   }
 }

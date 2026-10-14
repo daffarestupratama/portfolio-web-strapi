@@ -43,10 +43,6 @@
       "enum": ["custom", "about", "fun", "links", "misc"],
       "default": "custom"
     },
-    "isActive": {
-      "type": "boolean",
-      "default": true
-    },
     "order": {
       "type": "integer"
     }

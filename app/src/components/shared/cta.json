@@ -7,18 +7,12 @@
   "options": {},
   "attributes": {
     "label": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "url": {
-      "type": "string"
-    },
-    "style": {
-      "type": "enumeration",
-      "enum": [
-        "primary",
-        "secondary",
-        "ghost"
-      ]
+      "type": "string",
+      "required": true
     },
     "description": {
       "type": "text"

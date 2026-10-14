@@ -38,11 +38,6 @@
     "whyChooseMe": {
       "type": "json"
     },
-    "contactLinks": {
-      "type": "component",
-      "component": "shared.contact-link",
-      "repeatable": true
-    },
     "primaryCta": {
       "type": "component",
       "component": "shared.cta",

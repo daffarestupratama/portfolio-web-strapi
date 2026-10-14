@@ -38,6 +38,7 @@
     },
     "category": {
       "type": "enumeration",
+      "required": true,
       "enum": [
         "personal",
         "data",
@@ -63,7 +64,8 @@
       "default": false
     },
     "publishedDate": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "seo": {
       "type": "component",

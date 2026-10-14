@@ -53,11 +53,9 @@
       "target": "api::skill.skill",
       "inversedBy": "projects"
     },
-    "techStack": {
-      "type": "json"
-    },
     "projectType": {
       "type": "enumeration",
+      "required": true,
       "enum": [
         "data_science",
         "data_visualization",
@@ -74,15 +72,17 @@
     },
     "projectStatus": {
       "type": "enumeration",
+      "required": true,
       "enum": [
-        "draft",
+        "planned",
         "in_progress",
-        "published",
+        "completed",
         "archived"
       ]
     },
     "year": {
-      "type": "integer"
+      "type": "integer",
+      "required": true
     },
     "githubUrl": {
       "type": "string"
@@ -90,12 +90,9 @@
     "liveDemoUrl": {
       "type": "string"
     },
-    "dashboardUrl": {
-      "type": "string"
-    },
-    "notebookResources": {
+    "resources": {
       "type": "component",
-      "component": "shared.notebook-resource",
+      "component": "shared.project-resource",
       "repeatable": true
     },
     "seo": {

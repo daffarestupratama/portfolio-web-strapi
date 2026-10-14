@@ -10,7 +10,8 @@
       "type": "string"
     },
     "price": {
-      "type": "decimal"
+      "type": "decimal",
+      "required": true
     },
     "currency": {
       "type": "enumeration",

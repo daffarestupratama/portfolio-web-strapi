@@ -11,9 +11,11 @@ Runbook untuk migrasi backend Strapi ke VM baru.
 | Database | PostgreSQL 16 dalam container Docker di VM | **Ya.** Perlu dump dan restore |
 | Secret (`.env`) | Password manager | **Ya.** Salin manual |
 | Reverse proxy + TLS | nginx + Certbot di VM | Dipasang atau ditambahkan |
-| DNS | Cloudflare (zona `daffa.me`) | Ubah A record `cms` dan `s` |
+| DNS | Cloudflare (zona `daffa.me`) | Ubah A record `cms` |
 
 Yang benar-benar dipindahkan hanya **dump database** dan **isi `.env`**.
+
+**Shortener `s.daffa.me` sudah pindah ke Cloudflare** dan tidak lagi mengarah ke VM. Strapi tidak punya lagi tipe `short-link` maupun route `/api/s/:slug`, jadi VM tidak butuh vhost, record DNS, atau sertifikat untuk `s.`.
 
 **VM saat ini dipakai bersama Odoo** (Azure, Central India, 4GB RAM).
 
@@ -204,7 +206,7 @@ Semua container harus jalan dan curl harus `200`.
 sudo apt install -y nginx certbot python3-certbot-nginx
 ```
 
-**VM yang sudah punya nginx:** jangan pasang ulang dan jangan sentuh vhost aplikasi lain. Cukup tambahkan dua file baru, dan **jangan hapus `sites-enabled/default`** karena mungkin sudah ditangani saat setup sebelumnya.
+**VM yang sudah punya nginx:** jangan pasang ulang dan jangan sentuh vhost aplikasi lain. Cukup tambahkan satu file baru, dan **jangan hapus `sites-enabled/default`** karena mungkin sudah ditangani saat setup sebelumnya.
 
 ```bash
 sudo nano /etc/nginx/sites-available/cms.daffa.me
@@ -230,38 +232,7 @@ server {
 ```
 
 ```bash
-sudo nano /etc/nginx/sites-available/s.daffa.me
-```
-
-```nginx
-server {
-    listen 80;
-    server_name s.daffa.me;
-
-    location = / {
-        return 404 "Short link required\n";
-    }
-
-    location / {
-        rewrite ^/(.*)$ /api/s/$1 break;
-        proxy_pass http://127.0.0.1:1337;
-        proxy_http_version 1.1;
-        proxy_set_header Host cms.daffa.me;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-```
-
-**Jangan ubah** `proxy_set_header Host cms.daffa.me;` pada vhost `s.` karena itu yang membuat shortener bekerja.
-
-```bash
 sudo ln -sf /etc/nginx/sites-available/cms.daffa.me /etc/nginx/sites-enabled/
-sudo ln -sf /etc/nginx/sites-available/s.daffa.me /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
@@ -275,26 +246,25 @@ Membuktikan semuanya sehat sementara situs lama masih melayani trafik:
 
 ```bash
 curl -sS -H "Host: cms.daffa.me" -o /dev/null -w "%{http_code}\n" http://127.0.0.1/api/experiences
-curl -sS -H "Host: s.daffa.me" -i http://127.0.0.1/<SLUG> | head -5
 curl -sS -H "Host: odoo.daffa.me" -o /dev/null -w "%{http_code}\n" http://127.0.0.1/
 ```
 
-Harus `200`, `302`, dan respons normal aplikasi lain (Odoo mengembalikan `303`, redirect ke login). Yang ketiga memastikan kamu tidak merusak yang sudah jalan. **Jangan pindahkan DNS kalau ada yang gagal.**
+Harus `200` dan respons normal aplikasi lain (Odoo mengembalikan `303`, redirect ke login). Yang kedua memastikan kamu tidak merusak yang sudah jalan. **Jangan pindahkan DNS kalau ada yang gagal.**
 
 ---
 
 ## Fase 6: DNS dan sertifikat
 
-Di Cloudflare, zona `daffa.me`: ubah A record `cms` dan `s` ke IP baru, **matikan proxy dulu** (awan abu-abu) agar Certbot bisa validasi. Jangan sentuh record aplikasi lain.
+Di Cloudflare, zona `daffa.me`: ubah A record `cms` ke IP baru, **matikan proxy dulu** (awan abu-abu) agar Certbot bisa validasi. Jangan sentuh record aplikasi lain, termasuk `s` yang dilayani Cloudflare.
 
 Tunggu propagasi (`nslookup cms.daffa.me`), lalu:
 
 ```bash
-sudo certbot --nginx -d cms.daffa.me -d s.daffa.me
+sudo certbot --nginx -d cms.daffa.me
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-Certbot menambahkan sertifikat baru tanpa mengganggu yang sudah ada. Nyalakan kembali proxy untuk `cms` dan `s`, pastikan SSL/TLS mode **Full (strict)**.
+Sertifikat hanya mencakup **`cms.daffa.me`**. Di VM saat ini sertifikat sudah diterbitkan ulang hanya untuk `cms.daffa.me` dan `certbot renew --dry-run` sudah lolos, jadi tidak perlu tindakan lagi di sana. Certbot menambahkan sertifikat baru tanpa mengganggu yang sudah ada. Nyalakan kembali proxy untuk `cms`, pastikan SSL/TLS mode **Full (strict)**.
 
 ---
 
@@ -303,7 +273,6 @@ Certbot menambahkan sertifikat baru tanpa mengganggu yang sudah ada. Nyalakan ke
 ```bash
 curl -sS -o /dev/null -w "%{http_code}\n" https://cms.daffa.me/api/experiences
 curl -sS -g -o /dev/null -w "%{http_code}\n" "https://cms.daffa.me/api/skills?populate[logo]=true"
-curl -sS -I https://s.daffa.me/<SLUG> | head -3
 curl -sS -o /dev/null -w "%{http_code}\n" https://odoo.daffa.me
 free -h
 ```

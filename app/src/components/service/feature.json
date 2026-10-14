@@ -7,7 +7,6 @@
   "options": {},
   "attributes": {
     "title": { "type": "string" },
-    "description": { "type": "text" },
-    "icon": { "type": "string" }
+    "description": { "type": "text" }
   }
 }

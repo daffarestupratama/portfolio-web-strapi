@@ -21,16 +21,6 @@
       "type": "string",
       "maxLength": 50
     },
-    "isAnonymous": {
-      "type": "boolean",
-      "required": false,
-      "default": true
-    },
-    "isVisible": {
-      "type": "boolean",
-      "required": false,
-      "default": true
-    },
     "isPinned": {
       "type": "boolean",
       "required": false,
@@ -49,14 +39,8 @@
         "other"
       ]
     },
-    "submittedAt": {
-      "type": "datetime"
-    },
     "reply": {
       "type": "text"
-    },
-    "repliedAt": {
-      "type": "datetime"
     },
     "moderationStatus": {
       "type": "enumeration",
@@ -64,12 +48,8 @@
       "enum": [
         "visible",
         "hidden",
-        "spam",
-        "reviewed"
+        "spam"
       ]
-    },
-    "moderationNote": {
-      "type": "text"
     }
   }
 }

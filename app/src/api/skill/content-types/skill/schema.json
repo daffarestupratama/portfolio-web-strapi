@@ -17,6 +17,7 @@
     },
     "category": {
       "type": "enumeration",
+      "required": true,
       "enum": [
         "human_language",
         "programming_language",
@@ -44,7 +45,6 @@
     "level": {
       "type": "enumeration",
       "enum": [
-        "to be learned",
         "beginner",
         "intermediate",
         "advanced",
@@ -54,10 +54,6 @@
     },
     "description": {
       "type": "text"
-    },
-    "isFeatured": {
-      "type": "boolean",
-      "default": false
     },
     "order": {
       "type": "integer"

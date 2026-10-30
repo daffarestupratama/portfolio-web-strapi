@@ -29,7 +29,7 @@
     "description": { "type": "text" },
     "kind": {
       "type": "enumeration",
-      "enum": ["course", "workshop", "event", "bootcamp", "organization"],
+      "enum": ["course", "workshop", "event", "bootcamp", "organization", "professional"],
       "default": "course"
     },
     "skills": {

@@ -67,6 +67,10 @@
         "case_study",
         "social_work",
         "finance",
+        "erp",
+        "operations",
+        "data_analytics",
+        "infrastructure",
         "other"
       ]
     },

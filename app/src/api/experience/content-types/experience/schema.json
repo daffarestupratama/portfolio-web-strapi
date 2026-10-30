@@ -46,10 +46,6 @@
     "endDate": {
       "type": "date"
     },
-    "isCurrent": {
-      "type": "boolean",
-      "default": false
-    },
     "description": {
       "type": "text"
     },

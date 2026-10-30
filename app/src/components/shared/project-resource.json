@@ -22,6 +22,8 @@
         "dashboard",
         "dataset",
         "map",
+        "document",
+        "video",
         "other"
       ]
     },
